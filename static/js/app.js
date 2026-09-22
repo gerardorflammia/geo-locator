@@ -35,11 +35,6 @@
 
   // Referencias a elementos del DOM
   const dom = {
-    // Búsqueda de Lugares
-    placeSearchInput: document.getElementById('place-search-input'),
-    btnClearSearch: document.getElementById('btn-clear-search'),
-    searchSuggestions: document.getElementById('search-suggestions'),
-
     // Inputs de Coordenadas
     unifiedInput: document.getElementById('unified-coords-input'),
     btnParseUnified: document.getElementById('btn-parse-unified'),
@@ -257,66 +252,7 @@
   }
 
   // -------------------------------------------------------------
-  // 4. Búsqueda Predictiva de Lugares (Autocompletado)
-  // -------------------------------------------------------------
-
-  let searchTimeout = null;
-
-  function handlePlaceSearchInput(e) {
-    const query = e.target.value.trim();
-    if (query.length > 0) {
-      dom.btnClearSearch.classList.remove('hidden');
-    } else {
-      dom.btnClearSearch.classList.add('hidden');
-      dom.searchSuggestions.classList.add('hidden');
-      return;
-    }
-
-    if (query.length < 3) {
-      dom.searchSuggestions.classList.add('hidden');
-      return;
-    }
-
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(async () => {
-      const results = await getActiveEngine().searchPlaces(query);
-      renderSearchSuggestions(results);
-    }, 350);
-  }
-
-  function renderSearchSuggestions(results) {
-    if (!results || results.length === 0) {
-      dom.searchSuggestions.classList.add('hidden');
-      return;
-    }
-
-    dom.searchSuggestions.innerHTML = results.map(r => `
-      <div class="suggestion-item" data-lat="${r.lat}" data-lng="${r.lng}" data-name="${escapeHtml(r.name)}">
-        <span>📍</span>
-        <div>${escapeHtml(r.name)}</div>
-      </div>
-    `).join('');
-
-    dom.searchSuggestions.querySelectorAll('.suggestion-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const lat = parseFloat(item.dataset.lat);
-        const lng = parseFloat(item.dataset.lng);
-        const name = item.dataset.name;
-
-        dom.placeSearchInput.value = name;
-        dom.searchSuggestions.classList.add('hidden');
-
-        updateUiDisplays(lat, lng);
-        getActiveEngine().setPosition(lat, lng, 16, true);
-        showToast(`Lugar seleccionado: ${name}`, 'success');
-      });
-    });
-
-    dom.searchSuggestions.classList.remove('hidden');
-  }
-
-  // -------------------------------------------------------------
-  // 5. Conmutación de Motores y Capas HD
+  // 4. Conmutación de Motores y Capas HD
   // -------------------------------------------------------------
 
   async function switchEngine(targetEngine) {
@@ -813,19 +749,8 @@
   // -------------------------------------------------------------
 
   function bindEvents() {
-    // Búsqueda Predictiva de Lugares
-    dom.placeSearchInput.addEventListener('input', handlePlaceSearchInput);
-    dom.btnClearSearch.addEventListener('click', () => {
-      dom.placeSearchInput.value = '';
-      dom.btnClearSearch.classList.add('hidden');
-      dom.searchSuggestions.classList.add('hidden');
-    });
-
-    // Cerrar sugerencias al hacer clic fuera
+    // Cerrar menú de capas al hacer clic fuera
     document.addEventListener('click', (e) => {
-      if (!dom.placeSearchInput.contains(e.target) && !dom.searchSuggestions.contains(e.target)) {
-        dom.searchSuggestions.classList.add('hidden');
-      }
       if (!dom.btnLayerMenu.contains(e.target) && !dom.layerDropdown.contains(e.target)) {
         dom.layerDropdown.classList.add('hidden');
       }

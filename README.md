@@ -13,8 +13,7 @@ The entire application runs **100% locally** on the user's workstation (`127.0.0
 
 ## 🌟 Key Features
 
-### 1. 🔍 Universal Coordinate Input & Smart Place Search
-- **Predictive Search Bar (Geocoding)**: Type any address, city, point of interest, or landmark (e.g., *"Eiffel Tower, Paris"*, *"Maiquetía Airport"*, *"Plaza Mayor"*) with real-time autocompletion suggestions.
+### 1. 🔍 Universal Coordinate Input & Multi-Format Parser
 - **Universal Coordinate Parser**: Automatically detects and parses:
   - Standard Decimal Degrees (DD): `10.4806, -66.9036` or `10.4806 -66.9036`
   - Hemispheric Notation: `10.4806 N, 66.9036 W`
