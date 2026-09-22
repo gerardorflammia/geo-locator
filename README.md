@@ -5,7 +5,7 @@
 [![Engine](https://img.shields.io/badge/Maps-Google%20Maps%20%7C%20Leaflet-green.svg)](https://developers.google.com/maps)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
-**GeoLocator Pro** is a standalone Windows desktop application designed for searching, pinpointing, analyzing, and exporting geographic coordinates (Latitude and Longitude) on interactive maps. It features a native dual-engine architecture combining the **Google Maps JavaScript API** and **OpenStreetMap (Leaflet)** with 5 high-definition tile layers, real-time elevation profiling, distance measurement, coverage radius calculation, and instant mobile QR handoff.
+**GeoLocator Pro** is a standalone Windows desktop application designed for searching, pinpointing, analyzing, and exporting geographic coordinates (Latitude and Longitude) on interactive maps. It features a native dual-engine architecture combining the **Google Maps JavaScript API** and **OpenStreetMap (Leaflet)** with high-definition Streets and Google Satellite layers, real-time elevation profiling, distance measurement, coverage radius calculation, and instant mobile QR handoff.
 
 The entire application runs **100% locally** on the user's workstation (`127.0.0.1`), requiring zero external backend servers while ensuring a secure context for modern Web APIs (Geolocation, Clipboard, and Storage).
 
@@ -22,18 +22,15 @@ The entire application runs **100% locally** on the user's workstation (`127.0.0
   - Tagged strings: `lat: 10.4806, lng: -66.9036`
 - **Dual Display**: Formats coordinates simultaneously in **Decimal Degrees (DD)** and **Degrees Minutes Seconds (DMS)** with one-click clipboard copying.
 
-### 2. 🗺️ Dual Engine & 5 High-Definition Map Layers
+### 2. 🗺️ Dual Engine: Google Maps & OpenStreetMap
 - **Google Maps JavaScript API Engine**:
-  - Official Google Maps rendering with Road, Satellite, Hybrid, and Terrain layers.
+  - Official Google Maps rendering with Road and High-Resolution Satellite (Hybrid) layers.
   - Live **Real-Time Traffic Layer** toggle (`google.maps.TrafficLayer`).
   - Google Places and Geocoder integration.
-  - In-app Google Cloud API Key manager.
+  - In-app Google Cloud API Key manager and local `config.js` support.
 - **OpenStreetMap / Leaflet Engine** (100% Free & Zero-Config):
-  - **Streets**: Standard high-contrast OpenStreetMap cartography.
-  - **Satellite HD**: Ultra-high-resolution Esri World Imagery.
-  - **Dark Mode**: CartoDB Dark Matter for sleek low-light visualization.
-  - **Positron**: Minimalist light theme for report screenshots.
-  - **Topographic**: OpenTopoMap with elevation contour lines and mountain reliefs.
+  - **Streets**: Standard high-contrast cartography.
+  - **Google Satellite**: Ultra-high-resolution global satellite photography with street overlays.
 
 ### 3. 🎯 High-Precision Geolocation ("My Location")
 - Detects the workstation's real-time position using the HTML5 Geolocation API (`enableHighAccuracy: true`).
@@ -88,7 +85,7 @@ graph TD
         App["app.js (State Machine, Parser, Tools & Geolocation)"]
         EngineSwitch{"Map Engine Switcher"}
         GMaps["gmaps_engine.js (Google Maps JS API + Traffic)"]
-        Leaflet["leaflet_engine.js (Leaflet + 5 HD Tile Layers)"]
+        Leaflet["leaflet_engine.js (Leaflet + Streets & Google Satellite)"]
     end
 
     Main -->|Spawns daemon thread| Server
@@ -129,9 +126,10 @@ geo-locator/
     ├── css/
     │   └── style.css       # Modern dark-theme desktop styling
     └── js/
-        ├── app.js          # Main application orchestrator
-        ├── gmaps_engine.js # Google Maps JavaScript API adapter
-        └── leaflet_engine.js # Leaflet / OpenStreetMap adapter
+        ├── app.js              # Main application orchestrator
+        ├── config.example.js   # Configuration template for Google Maps API Key
+        ├── gmaps_engine.js     # Google Maps JavaScript API adapter
+        └── leaflet_engine.js   # Leaflet / OpenStreetMap adapter
 ```
 
 ---

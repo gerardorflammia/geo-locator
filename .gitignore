@@ -22,3 +22,10 @@ venv/
 # Operating System
 Thumbs.db
 desktop.ini
+
+# Secrets & Local Config (Never commit to GitHub)
+static/js/config.js
+config.json
+.env
+*.env
+*.key

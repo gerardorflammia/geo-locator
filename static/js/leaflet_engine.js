@@ -36,7 +36,7 @@ window.LeafletEngine = (function () {
 
     destroy();
 
-    // 1. Definición de 5 Capas HD
+    // 1. Definición de Capas: Calles y Satélite Google
     layers.streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap'
@@ -47,28 +47,6 @@ window.LeafletEngine = (function () {
       maxZoom: 20,
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
       attribution: '&copy; Google Maps Satélite'
-    });
-
-    // Capa Satelital Esri alternativa con limitación nativa para evitar imágenes grises
-    layers.esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 20,
-      maxNativeZoom: 17, // Evita que Esri devuelva el error "Map data not yet available"
-      attribution: 'Tiles &copy; Esri'
-    });
-
-    layers.dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO'
-    });
-
-    layers.positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO'
-    });
-
-    layers.topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      maxZoom: 17,
-      attribution: 'Map data: &copy; OpenStreetMap, SRTM | Map style: &copy; OpenTopoMap'
     });
 
     // Crear mapa
@@ -130,16 +108,18 @@ window.LeafletEngine = (function () {
   }
 
   function setLayer(layerKey) {
-    if (!map || !layers[layerKey]) return;
+    if (!map) return;
+    const key = (layerKey === 'satellite') ? 'satellite' : 'streets';
 
-    // Remover capa activa
     if (layers[currentLayerKey]) {
       map.removeLayer(layers[currentLayerKey]);
     }
 
-    map.addLayer(layers[layerKey]);
-    currentLayerKey = layerKey;
-    return layerKey;
+    if (layers[key]) {
+      map.addLayer(layers[key]);
+      currentLayerKey = key;
+    }
+    return key;
   }
 
   function setPosition(lat, lng, zoom, fetchAddress, shouldPan = false) {

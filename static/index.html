@@ -301,12 +301,8 @@
           </button>
           
           <div id="layer-dropdown" class="layer-dropdown hidden">
-            <div class="layer-option active" data-layer="streets">🗺️ Calles (OpenStreetMap)</div>
-            <div class="layer-option" data-layer="satellite">🛰️ Satélite HD (Google Hybrid)</div>
-            <div class="layer-option" data-layer="esri">🛰️ Satélite Alternativo (Esri)</div>
-            <div class="layer-option" data-layer="dark">🌙 Modo Nocturno (Dark Matter)</div>
-            <div class="layer-option" data-layer="positron">☀️ Modo Claro (Positron)</div>
-            <div class="layer-option" data-layer="topo">⛰️ Topográfico (Relieve / Curvas)</div>
+            <div class="layer-option active" data-layer="streets">🗺️ Calles</div>
+            <div class="layer-option" data-layer="satellite">🛰️ Satélite (Google)</div>
             <div class="layer-divider"></div>
             <div id="traffic-toggle-row" class="layer-toggle-row hidden">
               <span>🚦 Tráfico en Tiempo Real</span>
@@ -474,6 +470,10 @@
   <!-- Scripts: Leaflet primero -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Configuración de API Key (config.js local con clave real; plantilla segura config.example.js) -->
+  <script src="js/config.example.js"></script>
+  <script src="js/config.js"></script>
   
   <!-- Adaptadores de motor -->
   <script src="js/leaflet_engine.js"></script>

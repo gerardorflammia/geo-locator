@@ -35,8 +35,8 @@ En esta carpeta (`C:\Users\Gamer\Documents\SCRIPT COORDENADAS\`) dispones de dos
   - Cuenta con respaldo inteligente por IP si el GPS no está disponible.
 
 - **🗺️ Motor Dual de Mapas**:
-  - **Google Maps JavaScript API**: Soporta capas oficiales de Google (Calles, Híbrido, Satélite, Relieve) y Geocodificación oficial mediante clave de API.
-  - **OpenStreetMap (Leaflet)**: Motor 100% gratuito y listo para usar inmediatamente sin necesidad de registrar ninguna clave ni tarjeta de crédito.
+  - **Google Maps JavaScript API**: Soporta capas oficiales de Google (Calles y Satélite Híbrido HD) y Geocodificación oficial mediante clave de API.
+  - **OpenStreetMap (Leaflet)**: Motor 100% gratuito y listo para usar inmediatamente con capas de Calles y Satélite Google de alta resolución sin errores de visualización.
   - Conmutador de un clic para alternar entre ambos motores sin perder las coordenadas seleccionadas.
 
 - **📍 Marcador Interactivo**:
@@ -52,7 +52,7 @@ En esta carpeta (`C:\Users\Gamer\Documents\SCRIPT COORDENADAS\`) dispones de dos
   - Salta a cualquier favorito guardado con un clic.
 
 - **⚙️ Gestor de Google Maps API Key**:
-  - Ventana modal integrada para introducir o actualizar tu clave de Google Cloud Console. Se guarda localmente y de forma segura en tu equipo.
+  - Ventana modal integrada para introducir o actualizar tu clave de Google Cloud Console. Se guarda localmente y de forma segura en tu equipo (excluido de git por seguridad).
 
 ---
 
@@ -69,6 +69,8 @@ C:\Users\Gamer\Documents\SCRIPT COORDENADAS\
 ├── requirements.txt        # Dependencias de Python (pywebview, pyinstaller)
 ├── test_app.py             # Pruebas automatizadas de servidor y archivos
 ├── test_coords.js          # Pruebas del parser de coordenadas
+├── README.md               # Documentación en inglés
+├── README_ES.md            # Documentación en español
 │
 ├── dist/
 │   └── GeoLocator.exe      # Binario compilado
@@ -78,9 +80,10 @@ C:\Users\Gamer\Documents\SCRIPT COORDENADAS\
     ├── css/
     │   └── style.css       # Estilos visuales modernos
     └── js/
-        ├── app.js          # Controlador principal y gestión de estado
-        ├── gmaps_engine.js # Adaptador para Google Maps JavaScript API
-        └── leaflet_engine.js # Adaptador para Leaflet / OpenStreetMap
+        ├── app.js              # Controlador principal y gestión de estado
+        ├── config.example.js   # Plantilla para configuración de Google Maps API Key
+        ├── gmaps_engine.js     # Adaptador para Google Maps JavaScript API
+        └── leaflet_engine.js   # Adaptador para Leaflet / OpenStreetMap
 ```
 
 ---

@@ -24,7 +24,9 @@
     lat: 10.4806,             // Coordenada inicial por defecto (Caracas)
     lng: -66.9036,
     zoom: 14,
-    apiKey: localStorage.getItem('geolocator_gmaps_key') || '',
+    apiKey: (window.APP_CONFIG && window.APP_CONFIG.GOOGLE_MAPS_API_KEY && window.APP_CONFIG.GOOGLE_MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY_HERE')
+      ? window.APP_CONFIG.GOOGLE_MAPS_API_KEY
+      : (localStorage.getItem('geolocator_gmaps_key') || ''),
     favorites: JSON.parse(localStorage.getItem('geolocator_favorites') || '[]'),
     isRulerActive: false,
     isRadiusActive: false,

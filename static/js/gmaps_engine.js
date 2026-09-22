@@ -127,20 +127,10 @@ window.GoogleMapsEngine = (function () {
 
   function setLayer(layerKey) {
     if (!map) return;
-    switch (layerKey) {
-      case 'satellite':
-        map.setMapTypeId(google.maps.MapTypeId.SATELLITE);
-        break;
-      case 'dark':
-      case 'positron':
-      case 'streets':
-        map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
-        break;
-      case 'topo':
-        map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
-        break;
-      default:
-        map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+    if (layerKey === 'satellite') {
+      map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+    } else {
+      map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
     }
   }
 
