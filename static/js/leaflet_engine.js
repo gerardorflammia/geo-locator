@@ -92,9 +92,15 @@ window.LeafletEngine = (function () {
         return;
       }
 
+      // Prevenir clics accidentales si el evento vino de un control overlay
+      const target = event.originalEvent ? event.originalEvent.target : null;
+      if (target && target.closest('.map-floating-tools, .map-layer-selector, .mouse-coords-bar, .modal-backdrop, .sidebar-panel, .topbar')) {
+        return;
+      }
+
       const lat = event.latlng.lat;
       const lng = event.latlng.lng;
-      setPosition(lat, lng, null, true);
+      setPosition(lat, lng, null, true, false);
       if (onPositionChangeCallback) {
         onPositionChangeCallback(lat, lng, true);
       }
@@ -127,7 +133,7 @@ window.LeafletEngine = (function () {
     return layerKey;
   }
 
-  function setPosition(lat, lng, zoom, fetchAddress) {
+  function setPosition(lat, lng, zoom, fetchAddress, shouldPan = false) {
     if (!map || !marker) return;
 
     const newLatLng = L.latLng(lat, lng);
@@ -139,7 +145,7 @@ window.LeafletEngine = (function () {
 
     if (zoom) {
       map.setView(newLatLng, zoom);
-    } else {
+    } else if (shouldPan) {
       map.panTo(newLatLng);
     }
 

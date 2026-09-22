@@ -19,7 +19,7 @@
 
   // Estado global de la aplicación
   const state = {
-    currentEngine: 'leaflet', // 'leaflet' o 'gmaps'
+    currentEngine: null, // 'leaflet' o 'gmaps'
     currentLayer: 'streets',
     lat: 10.4806,             // Coordenada inicial por defecto (Caracas)
     lng: -66.9036,
@@ -85,7 +85,6 @@
     // Motores y Botones de Barra Superior
     btnEngineGmaps: document.getElementById('btn-engine-gmaps'),
     btnEngineLeaflet: document.getElementById('btn-engine-leaflet'),
-    activeEngineBadge: document.getElementById('active-engine-badge'),
     btnMapCenterPin: document.getElementById('btn-map-center-pin'),
 
     // Favoritos
@@ -325,8 +324,19 @@
       return;
     }
 
+    // Si ya estamos en este motor, no re-inicializar para evitar saltos
+    if (targetEngine === state.currentEngine) {
+      return;
+    }
+
+    // Capturar la posición actual del motor saliente para no perderla
     const previousEngine = getActiveEngine();
-    if (previousEngine) {
+    if (previousEngine && previousEngine.getPosition) {
+      const pos = previousEngine.getPosition();
+      if (pos && isValidCoord(pos.lat, pos.lng)) {
+        state.lat = pos.lat;
+        state.lng = pos.lng;
+      }
       previousEngine.destroy();
     }
 
@@ -336,7 +346,6 @@
     if (targetEngine === 'gmaps') {
       dom.btnEngineGmaps.classList.add('active');
       dom.btnEngineLeaflet.classList.remove('active');
-      dom.activeEngineBadge.textContent = 'Modo: Google Maps JS API';
       dom.trafficToggleRow.classList.remove('hidden');
 
       try {
@@ -353,13 +362,13 @@
         showToast('Google Maps inicializado correctamente.', 'success');
       } catch (err) {
         showToast(`Error al cargar Google Maps: ${err.message}. Volviendo a OpenStreetMap...`, 'error');
+        state.currentEngine = null; // Para permitir el retorno forzado a leaflet
         switchEngine('leaflet');
         return;
       }
     } else {
       dom.btnEngineLeaflet.classList.add('active');
       dom.btnEngineGmaps.classList.remove('active');
-      dom.activeEngineBadge.textContent = 'Modo: OpenStreetMap';
       dom.trafficToggleRow.classList.add('hidden');
 
       window.LeafletEngine.init(
@@ -371,12 +380,13 @@
         onMouseMoveMap,
         onRulerDistanceUpdated
       );
+      showToast('Modo OpenStreetMap activo.', 'info');
     }
 
-    // Restaurar capa y estado de radio
+    // Restaurar capa y radio sin provocar saltos bruscos
     getActiveEngine().setLayer(state.currentLayer);
     getActiveEngine().setRadiusCircle(state.isRadiusActive, state.radiusMeters);
-    getActiveEngine().setPosition(state.lat, state.lng, null, true);
+    getActiveEngine().reverseGeocode(state.lat, state.lng);
   }
 
   function onMapPositionChanged(newLat, newLng, fromInteraction) {
@@ -951,6 +961,13 @@
     [dom.modalSettings, dom.modalFavorites, dom.modalQr, dom.modalExport].forEach(modal => {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.add('hidden');
+      });
+    });
+
+    // Evitar que clics en controles flotantes o panel lateral penetren al mapa y desplacen el marcador
+    document.querySelectorAll('.map-layer-selector, .map-floating-tools, .mouse-coords-bar, .sidebar-panel, .topbar, .modal-dialog').forEach(el => {
+      ['click', 'mousedown', 'pointerdown', 'touchstart'].forEach(evt => {
+        el.addEventListener(evt, (e) => e.stopPropagation());
       });
     });
   }
