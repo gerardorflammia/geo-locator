@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoLocator Pro - Localizador y Analizador de Coordenadas</title>
+  
+  <!-- Estilos de Leaflet para el motor OpenStreetMap -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Fuentes e Iconos -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Barra Superior -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">GeoLocator Pro</h1>
+          <span class="brand-subtitle">Localizador & Analizador Geográfico</span>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <!-- Selector de Motor de Mapa -->
+        <div class="engine-selector">
+          <span class="engine-label">Motor:</span>
+          <button id="btn-engine-gmaps" class="engine-btn" title="Google Maps JavaScript API">
+            <span class="engine-dot gmaps-dot"></span> Google Maps
+          </button>
+          <button id="btn-engine-leaflet" class="engine-btn active" title="OpenStreetMap (Sin API Key)">
+            <span class="engine-dot osm-dot"></span> OpenStreetMap
+          </button>
+        </div>
+
+        <!-- Botones de Acción Superior -->
+        <button id="btn-open-export" class="icon-btn" title="Exportar Coordenadas (KML, GPX, GeoJSON)">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span class="btn-text">Exportar</span>
+        </button>
+
+        <button id="btn-open-favorites" class="icon-btn" title="Lugares Guardados">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span class="btn-text">Favoritos</span>
+          <span id="fav-count-badge" class="badge">0</span>
+        </button>
+
+        <button id="btn-open-settings" class="icon-btn" title="Configurar Google Maps API Key">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span class="btn-text">API Key</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Contenido Principal: Panel Lateral Flotante + Mapa -->
+    <main class="main-workspace">
+      
+      <!-- Panel Lateral de Control -->
+      <aside class="sidebar-panel">
+        
+        <!-- Búsqueda Inteligente por Nombre o Dirección -->
+        <div class="card search-card">
+          <div class="card-header">
+            <h3>Buscar Dirección o Lugar</h3>
+            <span class="chip-badge">Geocoding</span>
+          </div>
+          <div class="search-input-wrapper">
+            <input type="text" id="place-search-input" 
+                   placeholder="Ej: Torre Eiffel, París o Plaza Bolívar..." 
+                   autocomplete="off">
+            <button id="btn-clear-search" class="clear-input-btn hidden" title="Limpiar">&times;</button>
+            <div id="search-suggestions" class="search-suggestions-dropdown hidden"></div>
+          </div>
+          <span class="input-hint">Escribe cualquier ciudad, calle, monumento o comercio.</span>
+        </div>
+
+        <!-- Tarjeta de Coordenadas Numéricas -->
+        <div class="card control-card">
+          <div class="card-header">
+            <h3>Ubicar Coordenadas</h3>
+            <span class="chip-badge">Lat & Lng</span>
+          </div>
+
+          <!-- Input Combinado Inteligente -->
+          <div class="input-group">
+            <label for="unified-coords-input">Pegar Coordenadas (Cualquier formato):</label>
+            <div class="input-with-button">
+              <input type="text" id="unified-coords-input" 
+                     placeholder="Ej: 10.4806, -66.9036 o 10°28'50&quot;N 66°54'12&quot;W" 
+                     autocomplete="off">
+              <button id="btn-parse-unified" class="btn-sm btn-primary" title="Procesar y ubicar">
+                Ubicar
+              </button>
+            </div>
+          </div>
+
+          <div class="divider-text"><span>o campos independientes</span></div>
+
+          <!-- Inputs Separados -->
+          <div class="coords-row">
+            <div class="input-group">
+              <label for="input-latitude">Latitud:</label>
+              <input type="number" id="input-latitude" step="any" min="-90" max="90" placeholder="10.480600">
+            </div>
+            <div class="input-group">
+              <label for="input-longitude">Longitud:</label>
+              <input type="number" id="input-longitude" step="any" min="-180" max="180" placeholder="-66.903600">
+            </div>
+          </div>
+
+          <!-- Botones de Acción Principal -->
+          <div class="action-buttons-grid">
+            <button id="btn-locate-coords" class="btn btn-primary">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span>Ubicar Punto</span>
+            </button>
+
+            <button id="btn-my-location" class="btn btn-success" title="Detectar mi posición actual">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="22" y1="12" x2="18" y2="12"></line>
+                <line x1="6" y1="12" x2="2" y2="12"></line>
+                <line x1="12" y1="6" x2="12" y2="2"></line>
+                <line x1="12" y1="22" x2="12" y2="18"></line>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span>Mi Ubicación</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tarjeta de Punto Activo y Detalles Geográficos -->
+        <div class="card current-point-card">
+          <div class="card-header">
+            <h3>Punto Seleccionado</h3>
+            <span id="pin-status-badge" class="badge badge-online">Activo</span>
+          </div>
+
+          <!-- Grados Decimales -->
+          <div class="info-row">
+            <span class="info-title">Grados Decimales (DD):</span>
+            <div class="copyable-box">
+              <span id="display-decimal-coords" class="font-mono">10.480600, -66.903600</span>
+              <button id="btn-copy-decimal" class="copy-btn" title="Copiar al portapapeles">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Grados Minutos Segundos -->
+          <div class="info-row">
+            <span class="info-title">Grados Minutos Segundos (DMS):</span>
+            <div class="copyable-box">
+              <span id="display-dms-coords" class="font-mono">10° 28' 50.16" N, 66° 54' 12.96" W</span>
+              <button id="btn-copy-dms" class="copy-btn" title="Copiar formato DMS">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Altitud / Elevación -->
+          <div class="info-row">
+            <span class="info-title">Altitud / Elevación sobre el nivel del mar:</span>
+            <div class="elevation-box">
+              <span class="elevation-icon">⛰️</span>
+              <span id="display-elevation" class="elevation-value font-mono">Consultando elevación...</span>
+            </div>
+          </div>
+
+          <!-- Dirección Postal Aproximada -->
+          <div class="info-row">
+            <span class="info-title">Dirección / Lugar Detectado:</span>
+            <p id="display-address" class="address-text">Cargando información geográfica...</p>
+          </div>
+
+          <!-- Enlaces Rápidos y QR -->
+          <div class="quick-links-grid">
+            <button id="btn-open-google-web" class="btn-sm btn-secondary" title="Abrir en Google Maps Web">
+              🗺️ Google Maps
+            </button>
+            <button id="btn-open-waze" class="btn-sm btn-secondary" title="Abrir ruta en Waze">
+              🚗 Waze
+            </button>
+            <button id="btn-show-qr" class="btn-sm btn-secondary" title="Ver código QR para escanear con móvil">
+              📱 Código QR
+            </button>
+          </div>
+
+          <!-- Botón Guardar Favorito -->
+          <button id="btn-save-favorite" class="btn btn-secondary btn-block">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Guardar en Favoritos</span>
+          </button>
+        </div>
+
+        <!-- Herramientas de Análisis Geográfico -->
+        <div class="card analysis-card">
+          <div class="card-header">
+            <h3>Herramientas Geográficas</h3>
+          </div>
+
+          <!-- Control de Círculo de Radio de Alcance -->
+          <div class="tool-row">
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-radius-circle">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="tool-label">Círculo de Radio de Alcance</span>
+          </div>
+
+          <div id="radius-slider-group" class="radius-slider-group hidden">
+            <div class="slider-header">
+              <span>Radio:</span>
+              <span id="radius-val-text" class="font-mono">1.0 km</span>
+            </div>
+            <input type="range" id="input-radius-slider" min="100" max="25000" step="100" value="1000">
+          </div>
+
+          <!-- Control de Regla de Distancia -->
+          <div class="tool-row">
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-ruler-tool">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="tool-label">Regla de Medir Distancias</span>
+          </div>
+
+          <div id="ruler-info-box" class="ruler-info-box hidden">
+            <span id="ruler-distance-text">Haz clic en 2 o más puntos para medir distancia</span>
+            <button id="btn-clear-ruler" class="btn-sm btn-secondary">Limpiar Medición</button>
+          </div>
+
+          <!-- Control de Mira Central Crosshair -->
+          <div class="tool-row">
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-crosshair">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="tool-label">Mira Central de Precisión</span>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Contenedor del Mapa -->
+      <section class="map-section">
+        
+        <!-- Elemento contenedor del lienzo del mapa -->
+        <div id="map-container" class="map-view"></div>
+
+        <!-- Mira central superpuesta (Crosshair) -->
+        <div id="map-crosshair" class="map-crosshair hidden">
+          <div class="crosshair-h"></div>
+          <div class="crosshair-v"></div>
+          <div class="crosshair-circle"></div>
+        </div>
+
+        <!-- Selector Rápido de Capas HD (Flotante) -->
+        <div class="map-layer-selector">
+          <button id="btn-layer-menu" class="floating-layer-btn" title="Cambiar tipo de mapa">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+            <span id="active-layer-name">Calles</span>
+          </button>
+          
+          <div id="layer-dropdown" class="layer-dropdown hidden">
+            <div class="layer-option active" data-layer="streets">🗺️ Calles (OpenStreetMap)</div>
+            <div class="layer-option" data-layer="satellite">🛰️ Satélite HD (Esri World)</div>
+            <div class="layer-option" data-layer="dark">🌙 Modo Nocturno (Dark Matter)</div>
+            <div class="layer-option" data-layer="positron">☀️ Modo Claro (Positron)</div>
+            <div class="layer-option" data-layer="topo">⛰️ Topográfico (Relieve / Curvas)</div>
+            <div class="layer-divider"></div>
+            <div id="traffic-toggle-row" class="layer-toggle-row hidden">
+              <span>🚦 Tráfico en Tiempo Real</span>
+              <input type="checkbox" id="toggle-traffic">
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra flotante de herramientas del mapa -->
+        <div class="map-floating-tools">
+          <button id="btn-map-center-pin" class="floating-tool-btn" title="Centrar en el marcador actual">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
+            </svg>
+          </button>
+          
+          <button id="btn-quick-copy" class="floating-tool-btn" title="Copiar coordenadas actuales al portapapeles">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Indicador de Coordenadas bajo el Cursor en Tiempo Real -->
+        <div id="mouse-coords-bar" class="mouse-coords-bar font-mono">
+          Lat: --.------ | Lng: --.------
+        </div>
+
+        <!-- Indicador de Motor Activo en la esquina del mapa -->
+        <div id="active-engine-badge" class="active-engine-overlay">
+          <span>Modo: OpenStreetMap</span>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Modal de Código QR -->
+    <div id="modal-qr" class="modal-backdrop hidden">
+      <div class="modal-dialog modal-dialog-sm">
+        <div class="modal-header">
+          <h3>Escanear Ubicación en Móvil</h3>
+          <button id="btn-close-qr" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="qr-container">
+            <img id="qr-image" src="" alt="Código QR de la ubicación">
+          </div>
+          <p class="modal-description">
+            Escanea este código QR con la cámara de tu teléfono móvil para abrir estas coordenadas directamente en Google Maps, Waze o Apple Maps.
+          </p>
+          <div class="copyable-box">
+            <span id="qr-coords-text" class="font-mono">10.480600, -66.903600</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-close-qr-footer" class="btn btn-primary">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Exportación (KML, GPX, GeoJSON) -->
+    <div id="modal-export" class="modal-backdrop hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Exportar Datos Geográficos</h3>
+          <button id="btn-close-export" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-description">
+            Descarga las coordenadas actuales y tus lugares favoritos en los formatos estándar para software GIS, receptores GPS y drones:
+          </p>
+
+          <div class="export-options-grid">
+            <div class="export-card" id="btn-export-geojson">
+              <div class="export-icon">🌐</div>
+              <div class="export-details">
+                <h4>GeoJSON (.geojson)</h4>
+                <p>Estándar web universal para QGIS, ArcGIS y desarrollo de mapas.</p>
+              </div>
+            </div>
+
+            <div class="export-card" id="btn-export-kml">
+              <div class="export-icon">🗺️</div>
+              <div class="export-details">
+                <h4>Google Earth KML (.kml)</h4>
+                <p>Compatible con Google Earth Desktop y visualizadores 3D.</p>
+              </div>
+            </div>
+
+            <div class="export-card" id="btn-export-gpx">
+              <div class="export-icon">🧭</div>
+              <div class="export-details">
+                <h4>GPS Exchange Format (.gpx)</h4>
+                <p>Formato estándar para dispositivos Garmin, senderismo y navegación.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-close-export-footer" class="btn btn-primary">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Configuración (Google Maps API Key) -->
+    <div id="modal-settings" class="modal-backdrop hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Configurar Google Maps JavaScript API</h3>
+          <button id="btn-close-settings" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-description">
+            Introduce tu <strong>Google Maps API Key</strong> para activar las características completas de Google Maps (vista satelital oficial, Google Places y capas de relieve y tráfico).
+          </p>
+
+          <div class="input-group">
+            <label for="input-gmaps-key">Tu Google Maps API Key:</label>
+            <input type="text" id="input-gmaps-key" placeholder="AIzaSy..." autocomplete="off">
+            <span class="input-hint">La clave se almacena localmente de forma segura en tu computadora.</span>
+          </div>
+
+          <div class="key-status-box" id="key-status-box">
+            <span id="key-status-text">Estado: No configurada (usando OpenStreetMap)</span>
+          </div>
+
+          <div class="modal-info-box">
+            <h4>¿No tienes una API Key todavía?</h4>
+            <p>
+              El modo <strong>OpenStreetMap</strong> incluye 5 capas HD (Satélite Esri, Nocturno, Positron, Relieve), geocodificador por nombre y herramientas de distancia 100% gratuitas.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-clear-key" class="btn btn-secondary">Limpiar Clave</button>
+          <button id="btn-save-key" class="btn btn-primary">Guardar y Activar Google Maps</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal / Drawer de Lugares Favoritos -->
+    <div id="modal-favorites" class="modal-backdrop hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Lugares Guardados</h3>
+          <button id="btn-close-favorites" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="favorites-list" class="favorites-list">
+            <div class="empty-state">
+              <p>No tienes lugares guardados todavía.</p>
+              <span class="input-hint">Ubica cualquier punto en el mapa y haz clic en "Guardar en Favoritos".</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-clear-all-favs" class="btn btn-secondary">Borrar Todos</button>
+          <button id="btn-close-fav-footer" class="btn btn-primary">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenedor de Alertas Toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+  </div>
+
+  <!-- Scripts: Leaflet primero -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Adaptadores de motor -->
+  <script src="js/leaflet_engine.js"></script>
+  <script src="js/gmaps_engine.js"></script>
+  
+  <!-- Lógica Principal -->
+  <script src="js/app.js"></script>
+</body>
+</html>
